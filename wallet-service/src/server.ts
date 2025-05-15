@@ -1,17 +1,20 @@
-import express from 'express';
+import express, { Express } from 'express';
+import { Server } from 'http';
 import config from './config';
+import { connectDB } from './database';
 
-const app = express();
+const app: Express = express();
+let server: Server;
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const server = app.listen(config.PORT, () => {
+connectDB();
+
+server = app.listen(config.PORT, () => {
     console.log(`Wallet Service running on port ${config.PORT}`);
 });
 
-// Graceful shutdown
 const exitHandler = () => {
     if (server) {
         server.close(() => {
