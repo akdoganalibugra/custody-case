@@ -3,8 +3,8 @@ import assetService from '../services/asset.service';
 
 const deposit = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { walletId, name, amount } = req.body;
-        const asset = await assetService.deposit(walletId, name, amount);
+        const { address, name, amount } = req.body;
+        const asset = await assetService.deposit(address, name, amount);
         res.status(201).json({ status: 201, data: asset });
     } catch (err) {
         next(err);
@@ -13,8 +13,8 @@ const deposit = async (req: Request, res: Response, next: NextFunction) => {
 
 const withdraw = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { walletId, name, amount } = req.body;
-        const asset = await assetService.withdraw(walletId, name, amount);
+        const { address, name, amount } = req.body;
+        const asset = await assetService.withdraw(address, name, amount);
         res.status(201).json({ status: 201, data: asset });
     } catch (err) {
         next(err);
@@ -27,11 +27,11 @@ const scheduleTransfer = async (
     next: NextFunction
 ) => {
     try {
-        const { fromWalletId, toWalletId, name, amount, executeInSeconds } =
+        const { fromAddress, toAddress, name, amount, executeInSeconds } =
             req.body;
         const asset = await assetService.scheduleTransfer(
-            fromWalletId,
-            toWalletId,
+            fromAddress,
+            toAddress,
             name,
             amount,
             executeInSeconds

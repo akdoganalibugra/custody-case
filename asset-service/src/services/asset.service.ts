@@ -2,13 +2,22 @@ import Asset, { IAsset } from '../database/models/asset.model';
 import { ApiError } from '../utils';
 import rabbitmqService from './rabbitmq.service';
 
+interface IWallet {
+    found: boolean;
+    wallet: {
+        id: string;
+        address: string;
+        network: string;
+    };
+}
+
 class AssetService {
-    // RPC callback based request wrapping
-    private getWalletDetails(walletId: string): Promise<any> {
+    // RPC request wrapping: get wallet details by address
+    private getWalletDetails(address: string): Promise<IWallet> {
         return new Promise((resolve, reject) => {
-            rabbitmqService.requestWalletDetails(walletId, (data: any) => {
-                if (data.error) {
-                    reject(new ApiError(400, data.error));
+            rabbitmqService.requestWalletDetails(address, (data: any) => {
+                if (!data.found) {
+                    reject(new ApiError(404, 'Wallet not found'));
                 } else {
                     resolve(data);
                 }
@@ -17,14 +26,14 @@ class AssetService {
     }
 
     async deposit(
-        walletId: string,
+        address: string,
         name: string,
         amount: number
     ): Promise<IAsset> {
-        await this.getWalletDetails(walletId);
+        const { wallet } = await this.getWalletDetails(address);
 
         const asset = await Asset.create({
-            walletId,
+            walletId: wallet.id,
             type: 'DEPOSIT',
             name,
             amount,
@@ -34,14 +43,14 @@ class AssetService {
     }
 
     async withdraw(
-        walletId: string,
+        address: string,
         name: string,
         amount: number
     ): Promise<IAsset> {
-        await this.getWalletDetails(walletId);
+        const { wallet } = await this.getWalletDetails(address);
 
         const asset = await Asset.create({
-            walletId,
+            walletId: wallet.id,
             type: 'WITHDRAWAL',
             name,
             amount,
@@ -51,20 +60,20 @@ class AssetService {
     }
 
     async scheduleTransfer(
-        fromWalletId: string,
-        toWalletId: string,
+        fromAddress: string,
+        toAddress: string,
         name: string,
         amount: number,
         executeInSeconds: number
     ): Promise<IAsset> {
-        await this.getWalletDetails(fromWalletId);
-        await this.getWalletDetails(toWalletId);
+        const { wallet: sender } = await this.getWalletDetails(fromAddress);
+        const { wallet: recipient } = await this.getWalletDetails(toAddress);
 
         const delayMs = executeInSeconds * 1000;
         const executeAt = new Date(Date.now() + delayMs);
         const asset = await Asset.create({
-            walletId: fromWalletId,
-            toWalletId,
+            walletId: sender.id,
+            toWalletId: recipient.id,
             type: 'TRANSFER_SCHEDULED',
             name,
             amount,
@@ -73,7 +82,7 @@ class AssetService {
         });
 
         rabbitmqService.publishDelayed(
-            { from: fromWalletId, to: toWalletId },
+            { from: sender.id, to: recipient.id },
             delayMs
         );
 
