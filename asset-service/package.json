@@ -1,0 +1,28 @@
+{
+    "name": "asset-service",
+    "version": "1.0.0",
+    "description": "Microservice for managing asset operations",
+    "main": "src/server.ts",
+    "scripts": {
+        "dev": "NODE_ENV=development nodemon src/server.ts",
+        "build": "rm -rf build/ && tsc -p .",
+        "start": "NODE_ENV=production nodemon build/server.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/amqplib": "^0.10.7",
+        "@types/express": "^5.0.1",
+        "@types/morgan": "^1.9.9",
+        "@types/uuid": "^10.0.0",
+        "amqplib": "^0.10.3",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "mongoose": "^8.14.3",
+        "morgan": "^1.10.0",
+        "nodemon": "^3.1.10",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3",
+        "uuid": "^11.1.0"
+    }
+}

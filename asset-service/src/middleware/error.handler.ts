@@ -10,7 +10,7 @@ const errorConverter: ErrorRequestHandler = (err, req, res, next) => {
         const message =
             error.message ||
             (statusCode === 400 ? 'Bad Request' : 'Internal Server Error');
-        error = new ApiError(statusCode, message, false, err.stack.toString());
+        error = new ApiError(statusCode, message, false, err.stack?.toString());
     }
     next(error);
 };
