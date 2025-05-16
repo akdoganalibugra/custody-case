@@ -5,12 +5,12 @@ import AssetService from './asset.service';
 
 class RabbitMQService {
     private channel!: Channel;
-    private readonly requestQueue = 'WALLET_DETAILS_REQUEST';
-    private readonly responseQueue = 'WALLET_DETAILS_RESPONSE';
+    private requestQueue = 'WALLET_DETAILS_REQUEST';
+    private responseQueue = 'WALLET_DETAILS_RESPONSE';
     private correlationMap = new Map();
-    private readonly delayedExchange = 'transfer.delayed';
-    private readonly executeQueue = 'TRANSFER_EXECUTE';
-    private readonly routingKey = 'transfer.execute';
+    private delayedExchange = 'transfer.delayed';
+    private executeQueue = 'TRANSFER_EXECUTE';
+    private routingKey = 'transfer.execute';
 
     async start(): Promise<void> {
         await this.init();
@@ -23,16 +23,20 @@ class RabbitMQService {
         const conn = await amqp.connect(config.msgBrokerURL!);
         this.channel = await conn.createChannel();
 
-        // Assert RPC queues
-        await this.channel.assertQueue(this.requestQueue);
-        await this.channel.assertQueue(this.responseQueue);
+        // Assert RPC queues before consumption
+        await this.channel.assertQueue(this.requestQueue, { durable: true });
+        await this.channel.assertQueue(this.responseQueue, { durable: true });
         // Listen for responses
         this.channel.consume(
             this.responseQueue,
             (msg) => {
                 if (msg) {
                     const correlationId = msg.properties.correlationId!;
-                    const wallet = JSON.parse(msg.content.toString());
+                    const content = msg.content.toString();
+                    console.log(
+                        `RPC response received (correlationId=${correlationId}): ${content}`
+                    );
+                    const wallet = JSON.parse(content);
 
                     const callback = this.correlationMap.get(correlationId);
                     if (callback) {
@@ -50,19 +54,28 @@ class RabbitMQService {
 
     // Request wallet details and invoke callback on response
     async requestWalletDetails(
-        walletId: string,
+        address: string,
         callback: Function
     ): Promise<void> {
         const correlationId = uuidv4();
         this.correlationMap.set(correlationId, callback);
+        const payload = { address };
+        console.log(
+            `Sending RPC request (correlationId=${correlationId}): ${JSON.stringify(
+                payload
+            )}`
+        );
         this.channel.sendToQueue(
             this.requestQueue,
-            Buffer.from(JSON.stringify({ walletId })),
+            Buffer.from(JSON.stringify(payload)),
             { correlationId }
         );
         // Timeout handling
         setTimeout(() => {
             if (this.correlationMap.has(correlationId)) {
+                console.warn(
+                    `RPC request timeout (correlationId=${correlationId})`
+                );
                 this.correlationMap.delete(correlationId);
                 callback({ found: false });
             }
@@ -94,11 +107,23 @@ class RabbitMQService {
     startConsumer(): void {
         this.channel.consume(this.executeQueue, async (msg: any) => {
             if (!msg) return;
+            const payload = JSON.parse(msg.content.toString());
+            console.log(
+                `Scheduled transfer triggered at ${new Date().toISOString()}`,
+                payload
+            );
             try {
-                const payload = JSON.parse(msg.content.toString());
                 await AssetService.completeScheduled(payload);
+                console.log(
+                    `Scheduled transfer completed successfully`,
+                    payload
+                );
             } catch (err) {
-                console.error('Error processing scheduled transfer:', err);
+                console.error(
+                    'Error processing scheduled transfer:',
+                    err,
+                    payload
+                );
             } finally {
                 this.channel.ack(msg);
             }
