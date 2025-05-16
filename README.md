@@ -10,6 +10,7 @@ This project demonstrates a microservices architecture built with Node.js, TypeS
 -   [Setup](#setup)
 -   [Running the Application](#running-the-application)
 -   [API Endpoints](#api-endpoints)
+-   [Postman Collection](#postman-collection)
 -   [Environment Variables](#environment-variables)
 
 ## Architecture
@@ -43,8 +44,10 @@ This project demonstrates a microservices architecture built with Node.js, TypeS
 
 ## Prerequisites
 
+-   Node.js v14+ and npm
+-   TypeScript (installed globally or as a project dependency)
 -   Docker & Docker Compose
--   Node.js v14+ and npm or yarn
+-   Postman (or any API client) to test endpoints
 
 ## Setup
 
@@ -99,6 +102,10 @@ Use Postman or any HTTP client to interact with the APIs.
 -   `POST /api/v1/assets/transfer-schedule` - Schedule an asset transfer
 -   Body: `{ fromAddress: string, toAddress: string, name: string, amount: number, executeInSeconds: number }`
 
+## Postman Collection
+
+A Postman collection is provided at `docs/postman/Custody Services Gateway.postman_collection.json`. Import it to quickly test all wallet and asset endpoints—environment variables (e.g., `gateway_base_url`, `address`, `fromAddress`, etc.) are already configured and ready to use.
+
 ## Environment Variables
 
 Each service expects the following in its `.env` file:
@@ -121,7 +128,6 @@ For quick evaluation, the `.env.example` files include demo connection strings p
 ```ini
 NODE_ENV="development"
 PORT=8081
-JWT_SECRET="{{YOUR_SECRET_KEY}}"
 MONGO_URI="mongodb+srv://dev-user:nKMCsr73cgEvYvj@dev-projects.hd5ff8o.mongodb.net/?retryWrites=true&w=majority&appName=dev-projects"
 MESSAGE_BROKER_URL="amqps://cwbjazij:yGuPuf-RBKpdYnuK2_kp6zOHx03p4cG7@seal.lmq.cloudamqp.com/cwbjazij"
 ```
@@ -131,7 +137,6 @@ MESSAGE_BROKER_URL="amqps://cwbjazij:yGuPuf-RBKpdYnuK2_kp6zOHx03p4cG7@seal.lmq.c
 ```ini
 NODE_ENV="development"
 PORT=8082
-JWT_SECRET="{{YOUR_SECRET_KEY}}"
 MONGO_URI="mongodb+srv://dev-user:nKMCsr73cgEvYvj@dev-projects.hd5ff8o.mongodb.net/?retryWrites=true&w=majority&appName=dev-projects"
 MESSAGE_BROKER_URL="amqps://cwbjazij:yGuPuf-RBKpdYnuK2_kp6zOHx03p4cG7@seal.lmq.cloudamqp.com/cwbjazij"
 ```
