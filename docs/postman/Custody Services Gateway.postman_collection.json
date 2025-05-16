@@ -1,0 +1,266 @@
+{
+	"info": {
+		"_postman_id": "f5ff44de-e056-471c-b368-130571c0c2aa",
+		"name": "Custody Services Gateway",
+		"description": "Combined Postman collection for wallet-service and asset-service endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44991817"
+	},
+	"item": [
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "Create Wallet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"network\": \"{{network}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_base_url}}/wallets/",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"wallets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Wallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_base_url}}/wallets/",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"wallets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Wallet by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_base_url}}/wallets/:id/",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"wallets",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{walletId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Wallet",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_base_url}}/wallets/:id",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"wallets",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{walletId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Asset",
+			"item": [
+				{
+					"name": "Deposit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address\": \"{{address}}\",\n  \"name\": \"{{assetName}}\",\n  \"amount\": {{amount}}\n}"
+						},
+						"url": {
+							"raw": "{{gateway_base_url}}/assets/deposit",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"assets",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Withdraw",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address\": \"{{address}}\",\n  \"name\": \"{{assetName}}\",\n  \"amount\": {{amount}}\n}"
+						},
+						"url": {
+							"raw": "{{gateway_base_url}}/assets/withdraw",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"assets",
+								"withdraw"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule Transfer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fromAddress\": \"{{fromAddress}}\",\n  \"toAddress\": \"{{toAddress}}\",\n  \"name\": \"{{assetName}}\",\n  \"amount\": {{amount}},\n  \"executeInSeconds\": {{executeInSeconds}}\n}"
+						},
+						"url": {
+							"raw": "{{gateway_base_url}}/assets/transfer-schedule",
+							"host": [
+								"{{gateway_base_url}}"
+							],
+							"path": [
+								"assets",
+								"transfer-schedule"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "gateway_base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "wallet_base_url",
+			"value": "http://localhost:8081"
+		},
+		{
+			"key": "asset_base_url",
+			"value": "http://localhost:8082"
+		},
+		{
+			"key": "network",
+			"value": "Bitcoin"
+		},
+		{
+			"key": "address",
+			"value": "6f893be827f745c099ed0812b2c30970",
+			"type": "string"
+		},
+		{
+			"key": "walletId",
+			"value": "6825e57e792a40b0934267ff"
+		},
+		{
+			"key": "fromAddress",
+			"value": "3fa2a5c492574e7094d1dc734c4aa89a"
+		},
+		{
+			"key": "toAddress",
+			"value": "276ad84f18f1417eb311e247da69784c"
+		},
+		{
+			"key": "assetName",
+			"value": "BTC"
+		},
+		{
+			"key": "amount",
+			"value": "0.2"
+		},
+		{
+			"key": "executeInSeconds",
+			"value": 60
+		}
+	]
+}
