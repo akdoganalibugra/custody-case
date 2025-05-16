@@ -26,7 +26,7 @@ class WalletService {
     }
 
     async findByAddress(address: string): Promise<IWallet> {
-        const wallet = await Wallet.findById({ address }).exec();
+        const wallet = await Wallet.findOne({ address }).exec();
         if (!wallet) throw new ApiError(404, 'Wallet not found');
         return wallet;
     }
