@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+    mongodb:
+        image: mongo:latest
+        restart: unless-stopped
+        ports:
+            - '27017:27017'
+        volumes:
+            - mongo-data:/data/db
+
+    wallet-service:
+        build:
+            context: ./wallet-service
+            dockerfile: Dockerfile
+        ports:
+            - '8081:8081'
+        restart: always
+        depends_on:
+            - 'mongodb'
+        environment:
+            - NODE_ENV=production
+
+    asset-service:
+        build:
+            context: ./asset-service
+            dockerfile: Dockerfile
+        ports:
+            - '8082:8082'
+        depends_on:
+            - 'mongodb'
+        environment:
+            - NODE_ENV=production
+
+    nginx:
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        ports:
+            - '85:85'
+        depends_on:
+            - wallet-service
+            - asset-service
+
+volumes:
+    mongo-data:
