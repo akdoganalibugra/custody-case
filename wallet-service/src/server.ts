@@ -4,6 +4,7 @@ import config from './config';
 import { connectDB } from './database';
 import walletRouter from './routes/wallet.routes';
 import { errorConverter, errorHandler } from './middleware/error.handler';
+import { rabbitMQService } from './services/rabbitmq.service';
 import logger from 'morgan';
 
 const app: Express = express();
@@ -18,11 +19,19 @@ app.use('/api/v1/wallets', walletRouter);
 app.use(errorConverter);
 app.use(errorHandler);
 
-connectDB();
+(async () => {
+    await connectDB();
+    try {
+        await rabbitMQService.init();
+        console.log('Wallet Service RabbitMQ consumer initialized');
+    } catch (err) {
+        console.error('RabbitMQ init error:', err);
+    }
 
-server = app.listen(config.PORT, () => {
-    console.log(`Wallet Service running on port ${config.PORT}`);
-});
+    server = app.listen(config.PORT, () => {
+        console.log(`Wallet Service running on port ${config.PORT}`);
+    });
+})();
 
 const exitHandler = () => {
     if (server) {
